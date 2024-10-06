@@ -65,7 +65,6 @@ init-project:
 create-env:
 	@echo "Creating and activating the PDM environment..."
 	$(PDM) install
-	$(PDM) self add copier
 
 # Target to update the local environment with new dependencies after pulling changes
 update-env:
@@ -89,10 +88,10 @@ create-new-repository:
 	fi; \
 	read -p "Enter the name of the new repository: " new_repo_name; \
 	new_repo_dir=$$new_repo_dir/$$new_repo_name; \
-	# if [ -d "$$new_repo_dir" ]; then \
-	# 	echo "Error: The directory '$$new_repo_dir' already exists. Please choose a different name.\n"; \
-	# 	exit 1; \
-	# fi; \
+	if [ -d "$$new_repo_dir" ]; then \
+		echo "Error: The directory '$$new_repo_dir' already exists. Please choose a different name.\n"; \
+		exit 1; \
+	fi; \
 	$(PDM) run copier copy --data project_name="$$new_repo_name" $$template_url $$new_repo_dir;\
 	echo "New repository created and set up with PDM using Copier."
 
