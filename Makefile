@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Makefile for orchestration using PDM
 
 # Define the PDM executable
@@ -72,19 +74,27 @@ update-env:
 
 # Target to create a new repository (accepts template URL and new repo directory as arguments)
 create-new-repository:
-	@echo "Creating a new repository..."
+	echo "Creating a new repository..."
 	@if [ -z "$(template_url)" ]; then \
 		echo "No template URL provided. Using default: $(DEFAULT_TEMPLATE_URL)"; \
 		template_url=$(DEFAULT_TEMPLATE_URL); \
-	fi; \
+	else \
+		echo "Using template URL: $$template_url"; \
+	fi;\
 	if [ -z "$(new_repo_dir)" ]; then \
 		echo "No new repository directory provided. Using default: $(DEFAULT_NEW_REPO_DIR)"; \
 		new_repo_dir=$(DEFAULT_NEW_REPO_DIR); \
+	else \
+		echo "Using new repository directory: $$new_repo_dir"; \
 	fi; \
-	echo "Using template URL: $$template_url"; \
-	echo "New repository directory: $$new_repo_dir"; \
-	$(PDM) init --copier --project $$new_repo_dir --non-interactive $$template_url ; 
-	@echo "New repository created and set up with PDM using Copier."
+	read -p "Enter the name of the new repository: " new_repo_name; \
+	new_repo_dir=$$new_repo_dir/$$new_repo_name; \
+	# if [ -d "$$new_repo_dir" ]; then \
+	# 	echo "Error: The directory '$$new_repo_dir' already exists. Please choose a different name.\n"; \
+	# 	exit 1; \
+	# fi; \
+	$(PDM) run copier copy --data project_name="$$new_repo_name" $$template_url $$new_repo_dir;\
+	echo "New repository created and set up with PDM using Copier."
 
 # Target to clean up the environment
 clean:
