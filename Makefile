@@ -2,6 +2,8 @@
 
 # Makefile for orchestration using PDM
 
+include makefiles/environment.mk
+
 # Define the PDM executable
 PDM := pdm
 
@@ -18,61 +20,16 @@ help:
 	@echo "  make setup-system            - Install PDM and system-wide setup"
 	@echo "  make setup-repo              - Set up the repository environment"
 	@echo "  make create-env              - Create and activate the PDM environment"
-	@echo "  make create-new-repository   - Run Copier to create a new repository"
+	@echo "  make new-repository   - Run Copier to create a new repository"
 	@echo "  make clean                   - Remove virtual environment and cache"
 	@echo "  make update-pdm              - Update PDM to the latest version"
 
 
-# Target to set up the system (run only once on the system)
-setup-system: install-venv install-pdm install-git-lfs
-	@echo "System setup complete."
 
-install-venv:
-	@echo "Installing virtual environment..."
-	sudo apt install python3.12-venv
 
-install-pdm:
-	@echo "Installing PDM system-wide..."
-	curl -sSLO https://pdm-project.org/install-pdm.py
-	curl -sSL https://pdm-project.org/install-pdm.py.sha256 | shasum -a 256 -c -
-	# Run the installer
-	python3 install-pdm.py
-	# Remove the installer
-	rm install-pdm.py
-
-install-git-lfs:
-	@echo "Installing Git LFS..."
-	sudo apt install git-lfs
-	git lfs install
-
-# Target to update PDM to the latest version (optional)
-update-pdm:
-	@echo "Updating PDM to the latest version..."
-	$(PDM) self update
-
-# Target to set up the repository environment (run each time repo is cloned)
-setup-repo: init-project create-env
-	@echo "Repository environment is set up."
-
-init-project:
-	@echo "Initializing the PDM project..."
-	@if [ ! -f "pyproject.toml" ]; then \
-		$(PDM) init --non-interactive ; \
-	else \
-		echo "pyproject.toml already exists. Skipping initialization."; \
-	fi
-
-create-env:
-	@echo "Creating and activating the PDM environment..."
-	$(PDM) install
-
-# Target to update the local environment with new dependencies after pulling changes
-update-env:
-	@echo "Updating the local environment with new dependencies..."
-	$(PDM) update
 
 # Target to create a new repository (accepts template URL and new repo directory as arguments)
-create-new-repository:
+new-repository:
 	echo "Creating a new repository..."
 	@if [ -z "$(template_url)" ]; then \
 		echo "No template URL provided. Using default: $(DEFAULT_TEMPLATE_URL)"; \
